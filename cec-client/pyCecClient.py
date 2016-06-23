@@ -31,7 +31,14 @@
 # Pulse-Eight Licensing       <license@pulse-eight.com>
 #     http://www.pulse-eight.com/
 #     http://www.pulse-eight.net/
+#
+# Copyright (C) 2011-2015 Pulse-Eight Limited.  All rights reserved.
+# Copyright (C) 2016 Antonios Vamporakis (ant@area128.com)
+#
+# Modified libCEC python demo client to generate LIRC commands on
+# CEC button pressed
 
+import os
 import cec
 print(cec)
 
@@ -40,19 +47,24 @@ class pyCecClient:
   lib = {}
   # don't enable debug logging by default
   log_level = cec.CEC_LOG_TRAFFIC
+  lastActive = 0
 
   # create a new libcec_configuration
   def SetConfiguration(self):
-    self.cecconfig.strDeviceName   = "pyLibCec"
-    self.cecconfig.bActivateSource = 0
+    self.cecconfig.strDeviceName   = "KPN"
+    self.cecconfig.bActivateSource = 1
     self.cecconfig.deviceTypes.Add(cec.CEC_DEVICE_TYPE_RECORDING_DEVICE)
     self.cecconfig.clientVersion = cec.LIBCEC_VERSION_CURRENT
+    self.cecconfig.iPhysicalAddress = 0x2200
 
   def SetLogCallback(self, callback):
     self.cecconfig.SetLogCallback(callback)
 
   def SetKeyPressCallback(self, callback):
     self.cecconfig.SetKeyPressCallback(callback)
+
+  def SetSourceActivatedCallback(self, callback):
+    self.cecconfig.SetSourceActivatedCallback(callback)
 
   # detect an adapter and return the com port path
   def DetectAdapter(self):
@@ -146,7 +158,9 @@ class pyCecClient:
   def MainLoop(self):
     runLoop = True
     while runLoop:
-      command = raw_input("Enter command:").lower()
+#      sleep(100)
+#      command = raw_input("Enter command:").lower()
+      command = ' '
       if command == 'q' or command == 'quit':
         runLoop = False
       elif command == 'self':
@@ -174,6 +188,9 @@ class pyCecClient:
       levelstr = "NOTICE:  "
     elif level == cec.CEC_LOG_TRAFFIC:
       levelstr = "TRAFFIC: "
+      if "<< 2f:82:" in message and "<< 2f:82:22:00" not in message:
+        self.cecconfig.wakeDevices = cec.cec_logical_addresses()
+#        self.ProcessCommandTx("2f:82:22:00") 
     elif level == cec.CEC_LOG_DEBUG:
       levelstr = "DEBUG:   "
 
@@ -182,7 +199,86 @@ class pyCecClient:
 
   # key press callback
   def KeyPressCallback(self, key, duration):
-    print("[key pressed] " + str(key))
+    print("[key pressed] " + str(key) + " dur: " + str(duration))
+    if duration == 0 or ((key == 150 or key == 145) and duration == 500) or (key == 69 and duration >= 1000):
+      if key == 0:
+        os.system("irsend SEND_ONCE VIP1853 OK")
+      elif key == 1:
+        os.system("irsend SEND_ONCE VIP1853 UP")
+      elif key == 2:
+        os.system("irsend SEND_ONCE VIP1853 DOWN")
+      elif key == 3:
+        os.system("irsend SEND_ONCE VIP1853 LEFT")
+      elif key == 4:
+        os.system("irsend SEND_ONCE VIP1853 RIGHT")
+      elif key == 9:
+        os.system("irsend SEND_ONCE VIP1853 MENU")
+      elif key == 10:
+        os.system("irsend SEND_ONCE VIP1853 POWER")
+      elif key == 13:
+        os.system("irsend SEND_ONCE VIP1853 BACK")
+      elif key == 32:
+        os.system("irsend SEND_ONCE VIP1853 KEY_0")
+      elif key == 33:
+        os.system("irsend SEND_ONCE VIP1853 KEY_1")
+      elif key == 34:
+        os.system("irsend SEND_ONCE VIP1853 KEY_2")
+      elif key == 35:
+        os.system("irsend SEND_ONCE VIP1853 KEY_3")
+      elif key == 36:
+        os.system("irsend SEND_ONCE VIP1853 KEY_4")
+      elif key == 37:
+        os.system("irsend SEND_ONCE VIP1853 KEY_5")
+      elif key == 38:
+        os.system("irsend SEND_ONCE VIP1853 KEY_6")
+      elif key == 39:
+        os.system("irsend SEND_ONCE VIP1853 KEY_7")
+      elif key == 40:
+        os.system("irsend SEND_ONCE VIP1853 KEY_8")
+      elif key == 41:
+        os.system("irsend SEND_ONCE VIP1853 KEY_9")
+      elif key == 48:
+        os.system("irsend SEND_ONCE VIP1853 CHANNEL_UP")
+      elif key == 49:
+        os.system("irsend SEND_ONCE VIP1853 CHANNEL_DOWN")
+      elif key == 50:
+        os.system("irsend SEND_ONCE VIP1853 BACK")
+      elif key == 68:
+        os.system("irsend SEND_ONCE VIP1853 PLAY_PAUSE")
+      elif key == 69:
+        os.system("irsend SEND_ONCE VIP1853 STOP")
+      elif key == 70:
+        os.system("irsend SEND_ONCE VIP1853 PLAY_PAUSE")
+      elif key == 71:
+        os.system("irsend SEND_ONCE VIP1853 RECORD")
+      elif key == 72:
+        os.system("irsend SEND_ONCE VIP1853 REWIND")
+      elif key == 73:
+        os.system("irsend SEND_ONCE VIP1853 FAST_FORWARD")
+      elif key == 83:
+        os.system("irsend SEND_ONCE VIP1853 GUIDE")
+      elif key == 113:
+        os.system("irsend SEND_ONCE VIP1853 BLUE")
+      elif key == 114:
+        os.system("irsend SEND_ONCE VIP1853 RED")
+      elif key == 115:
+        os.system("irsend SEND_ONCE VIP1853 GREEN")
+      elif key == 116:
+        os.system("irsend SEND_ONCE VIP1853 YELLOW")
+      elif key == 145:
+        os.system("irsend SEND_ONCE VIP1853 BACK")
+      elif key == 150:
+        os.system("irsend SEND_ONCE VIP1853 GUIDE")
+      else:
+        print("[unhandled key] " + str(key) + " dur: " + str(duration))
+    return 0
+
+  def SourceActivatedCallback(self, source, active):
+    self.cecconfig.wakeDevices = cec.cec_logical_addresses()
+    print("[Source] " + str(source) + " active: " + str(active) + " lastActive: " + str(self.lastActive))
+#    if self.lastActive != active:
+#      os.system("irsend SEND_ONCE VIP1853 POWER")
+    self.lastActice = active
     return 0
 
   def __init__(self):
@@ -196,11 +292,15 @@ def log_callback(level, time, message):
 def key_press_callback(key, duration):
   return lib.KeyPressCallback(key, duration)
 
+def source_activated_callback(source, active):
+  return lib.SourceActivatedCallback(source, active)
+
 if __name__ == '__main__':
   # initialise libCEC
   lib = pyCecClient()
   lib.SetLogCallback(log_callback)
   lib.SetKeyPressCallback(key_press_callback)
+  lib.SetSourceActivatedCallback(source_activated_callback)
 
   # initialise libCEC and enter the main loop
   lib.InitLibCec()
