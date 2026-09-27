@@ -1,0 +1,27 @@
+name: Get latest release version
+on:
+  # schedule:
+  #   - cron:  '51 */6 * * *'
+  workflow_dispatch:
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.REG_TOKEN }}
+      - name: Fetch release version
+        id: latestrelease
+        run: echo "::set-output name=latestrelease::$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_name' )"
+      - name: Save the release name
+        run: echo ${{ steps.latestrelease.outputs.latestrelease }} > ZZJHONS-Bricksync-latest-release.txt
+      - name: Check for modified files
+        id: git-check
+        run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
+      - name: Commit latest release version
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+          git config --global user.name 'Ant'
+          git config --global user.email 'ant@area128.com'
+          git commit -am "New release version ${{ steps.latestrelease.outputs.latestrelease }}"
+          git push
