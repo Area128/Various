@@ -12,7 +12,7 @@ jobs:
           token: ${{ secrets.REG_TOKEN }}
       - name: Fetch release version
         id: latestrelease
-        run: echo "::set-output name=latestrelease::$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_names' )"
+        run: echo "::set-output name=latestrelease::$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_name' )"
       - name: Check fetched value is not null
         if: ${{ steps.latestrelease.outputs.latestrelease == 'null' }}
         run: exit 1
