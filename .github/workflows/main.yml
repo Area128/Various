@@ -14,7 +14,7 @@ jobs:
         id: latestrelease
         run: echo "::set-output name=latestrelease::$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_names' )"
       - name: Check fetched value is not null
-        if: steps.latestrelease.outputs.latestrelease == null
+        if: ${{ steps.latestrelease.outputs.latestrelease == 'null' }}
         run: exit 1
       - name: Save the release name
         run: echo ${{ steps.latestrelease.outputs.latestrelease }} > ZZJHONS-Bricksync-latest-release.txt
