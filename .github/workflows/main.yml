@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.REG_TOKEN }}
+          token: ${{ github.token }}
       - name: Fetch release version
         id: latestrelease
         run: echo "latestrelease=$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_name' )" >> $GITHUB_OUTPUT
