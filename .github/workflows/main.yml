@@ -25,6 +25,8 @@ jobs:
         run: |
           curl -H "Authorization: Bearer QQ==" -H 'Accept: application/vnd.oci.image.index.v1+json' https://ghcr.io/v2/area128/bricksync-docker/manifests/cli-${{ steps.latestrelease.outputs.latestrelease }} > response.out
           Err=$(jq '.errors' -r response.out)
+          echo $Err
+          cat response.out
           if [[ $Err ]]
           then
             echo "exists=0" >> $GITHUB_OUTPUT;
