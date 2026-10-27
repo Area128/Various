@@ -27,11 +27,11 @@ jobs:
           Err=$(jq '.errors' -r response.out)
           echo $Err
           cat response.out
-          if [[ $Err ]]
+          if [[ -n $Err ]]
           then
-            echo "exists=0" >> $GITHUB_OUTPUT;
-          else
             echo "exists=1" >> $GITHUB_OUTPUT;
+          else
+            echo "exists=0" >> $GITHUB_OUTPUT;
           fi
 
       - if: ${{ steps.check-cli-docker-image-tag.outputs.exists == true }}
