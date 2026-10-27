@@ -23,8 +23,8 @@ jobs:
         id: check-cli-docker-image-tag
         shell: bash
         run: |
-          curl -v -H "Authorization: Bearer QQ==" -H 'Accept: application/vnd.oci.image.index.v1+json' https://ghcr.io/v2/area128/bricksync-docker/manifests/cli-${{ inputs.tag }} > response.out
-          EXISTS=$(jq '.name == "${{ inputs.tag }}"' -r response.out)
+          curl -v -H "Authorization: Bearer QQ==" -H 'Accept: application/vnd.oci.image.index.v1+json' https://ghcr.io/v2/area128/bricksync-docker/manifests/cli-${{ steps.latestrelease.outputs.latestrelease }} > response.out
+          EXISTS=$(jq '.name == "${{ steps.latestrelease.outputs.latestrelease }}"' -r response.out)
           if [[ $EXISTS == 'true' ]]
           then
             echo "exists=1" >> $GITHUB_OUTPUT;
