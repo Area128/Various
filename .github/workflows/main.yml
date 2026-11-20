@@ -14,7 +14,7 @@ jobs:
 
       - name: Fetch release version
         id: latestrelease
-        run: echo "latestrelease=$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_name' )" >> $GITHUB_OUTPUT
+        run: echo "latestrelease=$( curl -sL https://api.github.com/repos/ZZJHONS/Bricksync/releases/latest | jq -r '.tag_name' )-patches" >> $GITHUB_OUTPUT
 
       - name: Check fetched value is not null
         if: ${{ steps.latestrelease.outputs.latestrelease == 'null' }}
