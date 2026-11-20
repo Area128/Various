@@ -36,6 +36,6 @@ jobs:
           fi
 
       - if: ${{ steps.check-cli-docker-image-tag.outputs.exists == true }}
-        run: echo "image tag exists"
+        run: echo "image tag exists $GITHUB_OUTPUT"
       - if: ${{ steps.check-cli-docker-image-tag.outputs.exists != true }}
-        run: echo "image tag does not exist"
+        run: echo "image tag does not exist $GITHUB_OUTPUT"
